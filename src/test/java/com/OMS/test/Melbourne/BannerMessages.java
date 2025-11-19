@@ -83,7 +83,6 @@ public class BannerMessages extends BaseClass {
         bm.Click_publish_Button();
     }
 
-
     // --------------------------- TEST CASE 4 --------------------------- //
     @Test(priority = 4, groups = "Regression")
     public void test04_verifyBannerPopupVisibilityToAllUsers() {
@@ -98,7 +97,7 @@ public class BannerMessages extends BaseClass {
         bm.clickUnderstoodButton();
     }
 
-
+//
     // --------------------------- TEST CASE 5 --------------------------- //
     @Test(priority = 5, groups = "Regression")
     public void test05_verifyInactiveBannerNotDisplayedToUsers() throws InterruptedException {
