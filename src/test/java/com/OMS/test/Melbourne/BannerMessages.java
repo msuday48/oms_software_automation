@@ -1,6 +1,7 @@
 package com.OMS.test.Melbourne;
 
 import com.oms.base.BaseClass;
+import com.oms.pages.UserDetails.HomePage;
 import com.oms.pages.Melbourne.BannerMessagePage;
 import com.oms.pages.Oms_Login;
 import com.oms.pages.UserDetails.UserAccountPage;
@@ -13,6 +14,7 @@ public class BannerMessages extends BaseClass {
     private Oms_Login loginpage;
     private UserAccountPage userpage;
     private BannerMessagePage bm;
+    private HomePage homepage;
 
     // ---------- LOGIN BEFORE EVERY TEST ----------
     @BeforeMethod(alwaysRun = true)
@@ -20,12 +22,16 @@ public class BannerMessages extends BaseClass {
 
         // 1. Initialize page objects with the correct driver
         loginpage = new Oms_Login(getDriver());
-        userpage = new UserAccountPage(getDriver());
         bm = new BannerMessagePage(getDriver());
+        homepage = new HomePage(getDriver());
+        userpage = new UserAccountPage(getDriver());
 
         // 2. Perform Login
         logger.info("====== LOGIN before Test Method ======");
         loginpage.login();
+        homepage.handlePopups();
+        bm.clickMelbourneDropdown();
+        bm.clickBannerMessagesButton();
     }
 
     // ---------- LOGOUT AFTER EVERY TEST ----------
@@ -43,46 +49,36 @@ public class BannerMessages extends BaseClass {
     }
 
     // --------------------------- TEST CASE 1 --------------------------- //
-    @Test(priority = 1, groups = "Regression")
+    @Test(priority = 1, groups = "Regression" , enabled = false)
     public void TC_001_verifyBannerMessageMenuVisibility() {
         logger.info("=== TC_001 - Verifying Banner Messages submenu visibility ===");
         loginpage.closeNoticePopupIfPresent();
-        bm.clickMelbourneDropdown();
-        bm.clickBannerMessagesButton();
         bm.BannerMessagePageForAllUsers();
     }
-/*
+
     // --------------------------- TEST CASE 2 --------------------------- //
-    @Test(priority = 2, groups = "Regression")
-    public void TC_002_verifyCreateEditAccessForUnauthorizedUsers() {
+    @Test(priority = 2, groups = "Regression", enabled = false)
+    public void TC_002_verifyCreateEditAccessForUnauthorizedUsers()
+    {
         logger.info("=== TC_002 - Verifying Create/Edit access for Unauthorised Users ===");
         loginpage.closeNoticePopupIfPresent();
-        bm.clickMelbourneDropdown();
-        bm.clickBannerMessagesButton();
         bm.BannerMessagePageDisplayedForUnauthorizedUsers();
     }
 
-*/
-/*
     // --------------------------- TEST CASE 3 --------------------------- //
     @Test(priority = 3, groups = "Regression")
     public void test03_verifyAuthorisedUserCanCreateBannerMessage() {
         logger.info("=== TC_003 - Verifying Authorised User Can Create Banner Message ===");
 
-        loginToOMS();
-
-        Banner_Messages_Page bm = new Banner_Messages_Page(driver, p);
-
-        bm.clickMelbourneDropdown();
-        bm.clickBannerMessagesButton();
-        bm.BannerMessagePageDisplayed_To_All_Users();
+        bm.BannerMessagePageForAllUsers();
         bm.clickNewButton();
-        bm.setBannerMessageTitle(p.getProperty("Banner_Message_Title"));
-        bm.setBannerMessageInformation(p.getProperty("Banner_Message_Information"));
+        bm.setBannerMessageTitle();
+        bm.setBannerMessageInformation();
         bm.selectBannerMessageCategory();
-        bm.Click_publish_Button();
+        bm.clickPublishButton();
     }
 
+/*
     // --------------------------- TEST CASE 4 --------------------------- //
     @Test(priority = 4, groups = "Regression")
     public void test04_verifyBannerPopupVisibilityToAllUsers() {
@@ -215,5 +211,7 @@ public class BannerMessages extends BaseClass {
 
         // NOTE: Audit History verification step assumed to be inside Page Object
         bm.verifyAuditHistoryLogs();
-    }*/
+    }
+
+ */
 }

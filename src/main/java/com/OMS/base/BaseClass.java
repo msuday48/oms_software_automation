@@ -28,6 +28,7 @@ import com.oms.utilities.LoggerManager;
 public class BaseClass {
 
     public static Properties prop;
+    public static Properties qa;
     //protected static WebDriver driver;
 
     // static ActionDriver kept as per your requirement
@@ -35,14 +36,9 @@ public class BaseClass {
 
     private static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
     private static ThreadLocal<ActionDriver> actionDriver = new ThreadLocal<>();
-    protected ThreadLocal<SoftAssert> SoftAssert = ThreadLocal.withInitial(SoftAssert::new);
     public static final Logger logger = LoggerManager.getLogger(BaseClass.class);
 
-  /*  public SoftAssert getSoftAssert() {
-        return SoftAssert.get();
-    } */
-
-    @BeforeSuite
+    @BeforeSuite()
     public void loadConfig() throws IOException {
 
         prop = new Properties();
@@ -52,10 +48,16 @@ public class BaseClass {
 
         //Start the Extent Report
       //  ExtentManager.getReporter(); implemented in itest listener
+
+       qa = new Properties();
+
+        FileInputStream TestEnv = new FileInputStream("src/main/resources/TestEnvironment.properties");
+        qa.load(TestEnv);
+
         logger.info("Configuration properties loaded and Extent Report initialized");
     }
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeMethod(alwaysRun = true)
     public  synchronized void  setup() {
         System.out.println("Setting up WebDriver for: " + this.getClass().getSimpleName());
         launchBrowser();
@@ -78,7 +80,6 @@ public class BaseClass {
             System.out.println("Action driver instance created");
             logger.info("ActtionDriver instance is crested"+Thread.currentThread().getId());
         }*/
-
 
         actionDriver.set(new ActionDriver(driver.get()));
         logger.info("ActionDriver initialized for thrread"+Thread.currentThread());
@@ -154,7 +155,7 @@ public class BaseClass {
         }
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterMethod(alwaysRun = true)
     public synchronized void  tearDown() {
         if (getDriver() != null) {
             try {
@@ -172,8 +173,13 @@ public class BaseClass {
         actionDriver.remove();
     }
 
-    public static Properties getProp() {
+    public static Properties getProp()
+    {
         return prop;
+    }
+
+    public static Properties getTestEnv() {
+        return qa;
     }
 
     public static ActionDriver getActionDriver() {

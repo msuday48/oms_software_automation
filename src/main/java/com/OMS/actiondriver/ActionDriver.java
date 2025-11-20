@@ -260,7 +260,7 @@ public class ActionDriver
         return value != null && !value.isEmpty();
     }
 
-    // Utility method to truncate long strings
+    // Utility metihod to truncate long strings
     private String truncate(String value, int maxLength) {
         if (value == null || value.length() <= maxLength) {
             return value;
@@ -479,7 +479,7 @@ public class ActionDriver
         }
     }
 
-    // ===================== Advanced WebElement Actions =====================
+    // ===================== Advanced WebElement Actions from Action class =====================
 
     public void moveToElement(By by) {
         String elementDescription = getElementDescription(by);
@@ -546,6 +546,42 @@ public class ActionDriver
             logger.error("Unable to send keys to element: " + e.getMessage());
         }
     }
+
+    // Method to move to an element and click it
+    public void moveToElementAndClick(By by) {
+        String elementDescription = getElementDescription(by);
+        try {
+            // 1. Wait for element to be interactable (Best Practice)
+            waitForElementToBeClickable(by);
+
+            // 2. Apply Visual Border (Consistent with your other methods)
+            applyBorder(by, "green");
+
+            // 3. Perform the Action
+            WebElement element = driver.findElement(by);
+            Actions actions = new Actions(driver);
+
+            // moveToElement moves the mouse to the middle of the element
+            // click performs the click at the current mouse location
+            actions.moveToElement(element).perform();
+            click(by);
+
+            // 4. Logging
+            ExtentManager.logStep("Moved to and clicked element: " + elementDescription);
+            logger.info("Moved to and clicked element --> " + elementDescription);
+
+        } catch (Exception e) {
+            // 5. Failure Handling
+            applyBorder(by, "red");
+            ExtentManager.logFailure(BaseClass.getDriver(), "Unable to move and click element", elementDescription + "_move_click_failed");
+            logger.error("Unable to move and click element: " + e.getMessage());
+
+            // Throw exception to ensure test fails
+            throw new RuntimeException("Move and Click failed on element: " + elementDescription, e);
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
 
     public void clearText(By by) {
         String elementDescription = getElementDescription(by);

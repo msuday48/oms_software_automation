@@ -6,6 +6,8 @@ import com.oms.utilities.AssertionUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import java.util.List;
+
+import static com.oms.base.BaseClass.logger;
 import static com.oms.base.BaseClass.prop;
 
 public class BannerMessagePage {
@@ -38,7 +40,7 @@ public class BannerMessagePage {
     private By inactiveBannerTitle = By.xpath("//table[@class='table table-bordered table-secondary']/descendant::textarea[@class='form-control title-textarea changeCaps'][text()='How to Access to users']");
     private By inactiveBannerInfo = By.xpath("//table[@class='table table-bordered table-secondary']/descendant::textarea[@class='form-control info-textarea changeCaps'][text()='Refer the FAQ Document clause 12']");
 
-    // ================= Actions ==================
+    //========Popup locators===============//
 
     public void clickMelbourneDropdown() {
         actionDriver.click(melbourneDropdown);
@@ -63,21 +65,24 @@ public class BannerMessagePage {
         actionDriver.click(newButton);
     }
 
-    public void setBannerMessageTitle(String title) {
-        actionDriver.clearText(bannerMessageTitle);
-        actionDriver.sendKeysWithActions(bannerMessageTitle, title);
+    public void setBannerMessageTitle() {
+        actionDriver.sendKeysWithActions(bannerMessageTitle,BaseClass.getTestEnv().getProperty("BannerMessageTitle"));
     }
 
-    public void setBannerMessageInformation(String info) {
-        actionDriver.clearText(bannerMessageInformation);
-        actionDriver.sendKeysWithActions(bannerMessageInformation, info);
+    public void setBannerMessageInformation()
+    {
+        actionDriver.sendKeysWithActions(bannerMessageInformation,BaseClass.getTestEnv().getProperty("BannerMessageInformation"));
     }
 
-    public void selectBannerMessageCategory(String categoryName) {
+    public void selectBannerMessageCategory()
+    {
+
         actionDriver.click(categoryDropdown);
         List<String> options = actionDriver.getDropdownOptions(categoryOptions);
         for (String option : options) {
-            if (option.equalsIgnoreCase(categoryName)) {
+            logger.info(" Create new Banner message dropdown Category options" + option);
+            if (option.equalsIgnoreCase(BaseClass.getTestEnv().getProperty("CategoryName")));
+            {
                 actionDriver.click(By.xpath("//ul[@id='select2-knkd-results' or @class='select2-results__options']/li[text()='" + option + "']"));
                 break;
             }

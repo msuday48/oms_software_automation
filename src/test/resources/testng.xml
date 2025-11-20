@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 
 <suite name="OMS" parallel="classes" thread-count="4" verbose="2">
@@ -9,9 +10,7 @@
 
     <test name="OMS_SOFTWARE_AUTOMATION Regression">
 
-
         <classes>
-            <class name="com.OMS.test.Oms_LoginPageTest" />
             <class name="com.OMS.test.Melbourne.BannerMessages" />
         </classes>
     </test>

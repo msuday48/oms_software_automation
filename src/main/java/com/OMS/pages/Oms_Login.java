@@ -24,8 +24,8 @@ public class Oms_Login {
     public void login()
     {
         // Read username and password from config.properties
-        String username = BaseClass.getProp().getProperty("emailid");
-        String password = BaseClass.getProp().getProperty("pwd");
+        String username = BaseClass.getTestEnv().getProperty("emailid");
+        String password = BaseClass.getTestEnv().getProperty("password");
 
         actionDriver.enterText(txtEmailAddress,username);
         actionDriver.enterText(txtPassword,password);
