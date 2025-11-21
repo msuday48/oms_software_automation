@@ -10,7 +10,6 @@ import org.openqa.selenium.WebDriver;
 public class HomePage {
 
     private static final Logger logger = LogManager.getLogger(HomePage.class);
-
     private final ActionDriver actionDriver;
 
     public HomePage(WebDriver driver) {
@@ -18,19 +17,32 @@ public class HomePage {
     }
 
     private By RevisedPolicyPopup = By.xpath("(//button[normalize-space()='Remind later'])[1]");
+    private By BannerMessagePopup = By.xpath("(//button[@id='companyInfoFooterBtn'])[1]");
 
-    public void handlePopups() {
+    /**
+     * Handles application popups.
+     * @param shouldCloseBannerPopup If true, closes the banner message. If false, leaves it open (for validation tests).
+     */
+    public void handlePopups(boolean shouldCloseBannerPopup) {
 
+        // 1. Always handle Revised Policy Popup
         if (actionDriver.isDisplayed(RevisedPolicyPopup)) {
-
-            logger.info("Revised Policy Popup detected. Attempting to close...");
-
             actionDriver.moveToElement(RevisedPolicyPopup);
-            actionDriver.click(RevisedPolicyPopup);
-
+            actionDriver.clickUsingJS(RevisedPolicyPopup);
+            logger.info("Revised Policy Popup was displayed and clicked 'Remind Later'");
         }
-        else {
-            logger.info("Revised Policy Popup was not displayed. Continuing...");
+
+        // 2. Conditionally handle Banner Message Popup
+        if (actionDriver.isDisplayed(BannerMessagePopup)) {
+            if (shouldCloseBannerPopup) {
+                actionDriver.moveToElement(BannerMessagePopup);
+                actionDriver.clickUsingJS(BannerMessagePopup);
+                logger.info("Banner Message Popup was displayed and clicked 'Understood'");
+            } else {
+                logger.info("Banner Message Popup displayed but LEFT OPEN for verification testing.");
+            }
+        } else {
+            logger.info("No popup displayed on screen.");
         }
     }
 }

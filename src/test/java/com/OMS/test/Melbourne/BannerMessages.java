@@ -5,9 +5,8 @@ import com.oms.pages.UserDetails.HomePage;
 import com.oms.pages.Melbourne.BannerMessagePage;
 import com.oms.pages.Oms_Login;
 import com.oms.pages.UserDetails.UserAccountPage;
-import com.oms.utilities.AssertionUtils;
 import org.testng.annotations.*;
-import org.testng.asserts.SoftAssert;
+import java.lang.reflect.Method;
 
 public class BannerMessages extends BaseClass {
 
@@ -18,24 +17,45 @@ public class BannerMessages extends BaseClass {
 
     // ---------- LOGIN BEFORE EVERY TEST ----------
     @BeforeMethod(alwaysRun = true)
-    public void setupAndLogin() {
+    public void setupAndLogin(Method method) { // 1. Inject Method parameter
 
-        // 1. Initialize page objects with the correct driver
+        // Initialize Pages
         loginpage = new Oms_Login(getDriver());
         bm = new BannerMessagePage(getDriver());
         homepage = new HomePage(getDriver());
         userpage = new UserAccountPage(getDriver());
 
-        // 2. Perform Login
-        logger.info("====== LOGIN before Test Method ======");
+        // Perform Login
+        logger.info("====== LOGIN before Test Method: " + method.getName() + " ======");
         loginpage.login();
-        homepage.handlePopups();
-        bm.clickMelbourneDropdown();
-        bm.clickBannerMessagesButton();
+
+        // 2. DYNAMIC POPUP LOGIC
+        // Check the name of the test about to run.
+        // If it is 'test04', we pass FALSE (Do NOT close).
+        // For all other tests (TC_001, TC_002, etc.), we pass TRUE (Close it).
+
+        boolean shouldCloseBanner = !method.getName().equals("test04_verifyBannerPopupVisibilityToAllUsers");
+
+        homepage.handlePopups(shouldCloseBanner);
+
+        // 3. Navigation Logic
+        // If we kept the popup OPEN (for test04), navigation might fail if the popup blocks the menu.
+        // So we use a try-catch to ensure setup doesn't crash.
+        try {
+            // If the banner is open, this might not work depending on UI overlay
+            if (shouldCloseBanner) {
+                bm.clickMelbourneDropdown();
+                bm.clickBannerMessagesButton();
+            } else {
+                logger.info("Skipping menu navigation in Setup because Banner Popup is intentionally open.");
+            }
+        } catch (Exception e) {
+            logger.warn("Navigation failed in setup (likely due to open popup). Continuing execution...");
+        }
     }
 
     // ---------- LOGOUT AFTER EVERY TEST ----------
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void logoutAfterTest() {
         logger.info("====== LOGOUT after Test Method ======");
         try {
@@ -49,28 +69,30 @@ public class BannerMessages extends BaseClass {
     }
 
     // --------------------------- TEST CASE 1 --------------------------- //
-    @Test(priority = 1, groups = "Regression" , enabled = false)
+    @Test(priority = 1, groups = "Regression" )
     public void TC_001_verifyBannerMessageMenuVisibility() {
         logger.info("=== TC_001 - Verifying Banner Messages submenu visibility ===");
-        loginpage.closeNoticePopupIfPresent();
+
         bm.BannerMessagePageForAllUsers();
+
     }
 
     // --------------------------- TEST CASE 2 --------------------------- //
-    @Test(priority = 2, groups = "Regression", enabled = false)
+    @Test(priority = 10, groups = "Regression")
     public void TC_002_verifyCreateEditAccessForUnauthorizedUsers()
     {
         logger.info("=== TC_002 - Verifying Create/Edit access for Unauthorised Users ===");
-        loginpage.closeNoticePopupIfPresent();
+
         bm.BannerMessagePageDisplayedForUnauthorizedUsers();
     }
 
     // --------------------------- TEST CASE 3 --------------------------- //
     @Test(priority = 3, groups = "Regression")
-    public void test03_verifyAuthorisedUserCanCreateBannerMessage() {
-        logger.info("=== TC_003 - Verifying Authorised User Can Create Banner Message ===");
+    public void test03_verifyAuthorisedUserCanCreateBannerMessage()
+    {
 
         bm.BannerMessagePageForAllUsers();
+        bm.deleteActiveBannerMessage();
         bm.clickNewButton();
         bm.setBannerMessageTitle();
         bm.setBannerMessageInformation();
@@ -78,72 +100,51 @@ public class BannerMessages extends BaseClass {
         bm.clickPublishButton();
     }
 
-/*
-    // --------------------------- TEST CASE 4 --------------------------- //
+   // TC 004 - Popup was LEFT OPEN in setup, so we can verify it here
     @Test(priority = 4, groups = "Regression")
     public void test04_verifyBannerPopupVisibilityToAllUsers() {
-        logger.info("=== TC_004 - Verifying Banner Message Popup visibility after login ===");
+        logger.info("=== Starting TC_004 ===");
 
-        loginToOMS();
+        // 1. Verify the popup (It is open because setup passed 'false')
+        bm.verifyPopupDisplayed();
+        bm.verifyPopupTitle();
+        bm.verifyPopupInformation();
 
-        Banner_Messages_Page bm = new Banner_Messages_Page(driver, p);
-        bm.popupDisplayedConfirmation();
-        bm.bannerMessageTitleConfirmationInPopup();
-        bm.bannerMessageInformationConfirmationInPopup();
+        // 2. Manually close it (This handles the popup for this specific test)
         bm.clickUnderstoodButton();
+
+        logger.info("=== Completed TC_004 ===");
     }
 
-//
     // --------------------------- TEST CASE 5 --------------------------- //
     @Test(priority = 5, groups = "Regression")
-    public void test05_verifyInactiveBannerNotDisplayedToUsers() throws InterruptedException {
+    public void test05_verifyInactiveBannerNotDisplayedToUsers() {
         logger.info("=== TC_005 - Verifying Inactive Banner Messages not displayed to users ===");
 
-        loginToOMS();
+        bm.clickInactiveButton();
+        bm.clickPopupNoButton();
+        bm.clickPopupYesButton();
 
-        Banner_Messages_Page bm = new Banner_Messages_Page(driver, p);
+        userpage.verifyUsername();
+        userpage.clickLogout();
 
-        // set existing banner to inactive
+        loginpage.login();
+        homepage.handlePopups(false);
         bm.clickMelbourneDropdown();
         bm.clickBannerMessagesButton();
-        bm.banner_message_active_button();
-        bm.banner_message_active_popup();
-        bm.banner_message_active_popup_no_button();
-        bm.banner_message_active_button();
-        bm.banner_message_active_popup_yes_button();
-        Thread.sleep(3000);
-
-        // logout
-        User_Account_Page user = new User_Account_Page(driver);
-        user.GetUsername();
-        user.clickLogout();
-
-        // login again
-        loginToOMS();
-
-        // verify inactive message not visible
-        bm.clickMelbourneDropdown();
-        bm.clickBannerMessagesButton();
-        bm.BannerMessagePageDisplayed_To_All_Users();
+        bm.BannerMessagePageForAllUsers();
     }
-
 
     // --------------------------- TEST CASE 6 --------------------------- //
     @Test(priority = 6, groups = "Regression")
     public void test06_verifyInactiveMessagesListedInInactiveList() {
         logger.info("=== TC_006 - Verifying Inactive Banner Messages are listed under Inactive List ===");
 
-        loginToOMS();
-
-        Banner_Messages_Page bm = new Banner_Messages_Page(driver, p);
-        bm.clickMelbourneDropdown();
-        bm.clickBannerMessagesButton();
-        bm.Inactive_bannermessage_title();
-        bm.Inactive_bannermessage_Information();
-        bm.Inactive_bannermessage_Active_button();
-        bm.banner_message_inactive_popup();
-        bm.banner_message_inactive_popup_no_button();
-        bm.banner_message_inactive_popup_yes_button();
+        bm.verifyInactiveBannerMessageTitle();
+        bm.verifyInactiveBannerMessageInfo();
+        bm.InactiveBannerMessageActiveButton();
+        bm.InactiveBannerPopup();
+        bm.InactiveBannerPopupYesButton();
     }
 
 
@@ -152,34 +153,12 @@ public class BannerMessages extends BaseClass {
     public void test07_verifyOnlyOneBannerMessageCanBeActive() {
         logger.info("=== TC_007 - Verify only one Banner Message can be active at a time ===");
 
-        loginToOMS();
-
-        Banner_Messages_Page bm = new Banner_Messages_Page(driver, p);
-
-        bm.clickMelbourneDropdown();
-        bm.clickBannerMessagesButton();
-        bm.BannerMessagePageDisplayed_To_All_Users();
-        bm.delete_banner_message();
-
         // create 1st banner
-        bm.clickNewButton();
-        bm.setBannerMessageTitle(p.getProperty("Banner_Message_Title"));
-        bm.setBannerMessageInformation(p.getProperty("Banner_Message_Information"));
-        bm.selectBannerMessageCategory();
-        bm.Click_publish_Button();
+        bm.BannerMessagetab();
+        bm.createBannerMessage();
 
-        // create 2nd banner
-        bm.clickNewButton();
-        bm.setBannerMessageTitle(p.getProperty("Banner_Message_Title"));
-        bm.setBannerMessageInformation(p.getProperty("Banner_Message_Information"));
-        bm.selectBannerMessageCategory();
-        bm.Click_publish_Button();
-
-        // confirm deactivation popup
-        bm.confirm_Save_Deactivating_Previous_BannerMessage_popup();
     }
-
-
+/*
     // --------------------------- TEST CASE 8 --------------------------- //
     @Test(priority = 8, groups = "Regression")
     public void test08_verifyAuditHistoryLogsForBannerMessages() {

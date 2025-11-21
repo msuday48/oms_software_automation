@@ -66,8 +66,6 @@ public class ActionDriver
         try {
             waitForElementToBeVisible(by);
             applyBorder(by,"green");
-            // driver.findElement(by).clear();
-            // driver.findElement(by).sendKeys(value);
             WebElement element = driver.findElement(by);
             element.clear();
             element.sendKeys(value);
@@ -153,9 +151,7 @@ public class ActionDriver
             logger.error("Element is not present or visible: " + e.getMessage());
             ExtentManager.logFailure(BaseClass.getDriver(),"Element is not displayed: ","Element is not displayed: "+getElementDescription(by));
 
-            //  Return false but don't re-throw if the calling test needs to handle it
-            // However, if called by a HardAssert (like in the HomePage class), the assertion will catch this failure.
-            // For isDisplayed, returning false is generally the correct behavior in this catch block.
+
             return false;
         }
     }
@@ -260,7 +256,7 @@ public class ActionDriver
         return value != null && !value.isEmpty();
     }
 
-    // Utility metihod to truncate long strings
+    // Utility method to truncate long strings
     private String truncate(String value, int maxLength) {
         if (value == null || value.length() <= maxLength) {
             return value;
@@ -342,6 +338,50 @@ public class ActionDriver
         return optionsList;
     }
 
+    public void selectBootstrapDropdownOption(By openDropdownLocator, By optionsListLocator, String valueToSelect) {
+        try {
+            // 1. Click to open the dropdown
+            click(openDropdownLocator);
+
+            // 2. Wait for options to appear
+            waitForElementToBeClickable(optionsListLocator);
+
+            // 3. Find all options
+            List<WebElement> options = driver.findElements(optionsListLocator);
+            logger.info("Bootstrap Dropdown opened. Total options found: " + options.size());
+
+            boolean isFound = false;
+
+            // 4. Iterate and select match
+            for (WebElement op : options) {
+                String currentText = op.getText().trim();
+                if (currentText.equals(valueToSelect)) {
+                    // Highlight the option
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].style.border='3px solid green'", op);
+
+                    op.click();
+                    isFound = true;
+
+                    logger.info("Selected Bootstrap Option: " + valueToSelect);
+                    if(ExtentManager.getTest() != null) {
+                        ExtentManager.logStep("Selected Bootstrap Option: " + valueToSelect);
+                    }
+                    break;
+                }
+            }
+
+            if (!isFound) {
+                throw new RuntimeException("Option '" + valueToSelect + "' not found in Bootstrap dropdown.");
+            }
+
+        } catch (Exception e) {
+            logger.error("Failed to select bootstrap option: " + valueToSelect + ". Error: " + e.getMessage());
+            if(ExtentManager.getTest() != null) {
+                ExtentManager.logFailure(BaseClass.getDriver(), "Bootstrap select failed", "bootstrap_error");
+            }
+            throw new RuntimeException("Bootstrap selection failed", e);
+        }
+    }
 
     // ===================== JavaScript Utility Methods =====================
 
@@ -479,7 +519,7 @@ public class ActionDriver
         }
     }
 
-    // ===================== Advanced WebElement Actions from Action class =====================
+    // ===================== Advanced WebElement Actions =====================
 
     public void moveToElement(By by) {
         String elementDescription = getElementDescription(by);
@@ -546,42 +586,6 @@ public class ActionDriver
             logger.error("Unable to send keys to element: " + e.getMessage());
         }
     }
-
-    // Method to move to an element and click it
-    public void moveToElementAndClick(By by) {
-        String elementDescription = getElementDescription(by);
-        try {
-            // 1. Wait for element to be interactable (Best Practice)
-            waitForElementToBeClickable(by);
-
-            // 2. Apply Visual Border (Consistent with your other methods)
-            applyBorder(by, "green");
-
-            // 3. Perform the Action
-            WebElement element = driver.findElement(by);
-            Actions actions = new Actions(driver);
-
-            // moveToElement moves the mouse to the middle of the element
-            // click performs the click at the current mouse location
-            actions.moveToElement(element).perform();
-            click(by);
-
-            // 4. Logging
-            ExtentManager.logStep("Moved to and clicked element: " + elementDescription);
-            logger.info("Moved to and clicked element --> " + elementDescription);
-
-        } catch (Exception e) {
-            // 5. Failure Handling
-            applyBorder(by, "red");
-            ExtentManager.logFailure(BaseClass.getDriver(), "Unable to move and click element", elementDescription + "_move_click_failed");
-            logger.error("Unable to move and click element: " + e.getMessage());
-
-            // Throw exception to ensure test fails
-            throw new RuntimeException("Move and Click failed on element: " + elementDescription, e);
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------------------------
 
     public void clearText(By by) {
         String elementDescription = getElementDescription(by);
