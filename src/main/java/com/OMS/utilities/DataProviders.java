@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.util.List;
 
 public class DataProviders {
-/*
+
     @DataProvider(name = "LoginData")
     public String[][] getData() throws IOException {
 
-        String path = "C:\\Users\\Hemanth\\IdeaProjects\\OMS_SOFTWARE\\src\\test\\TestData\\OMS9_software_Data.xlsx";
+        String path = "C:\\Users\\Hemanth\\IdeaProjects\\OMS_SOFTWARE_AUTOMATION\\src\\main\\resources\\OmsData\\OmsSoftwareData.xlsx";
         ExcelReaderUtility xlutil = new ExcelReaderUtility(path);
         String sheetName = "LoginData";
 
@@ -58,12 +58,12 @@ public class DataProviders {
         }
 
         return loginData;
-    }*/
-
+    }
+/*
     @DataProvider(name = "LoginData")
     public String[][] getData() throws IOException {
 
-        String path = "C:\\Users\\Hemanth\\IdeaProjects\\OMS_SOFTWARE\\src\\test\\TestData\\OMS9_software_Data.xlsx";
+        String path = "C:\\Users\\Hemanth\\IdeaProjects\\OMS_SOFTWARE_AUTOMATION\\src\\main\\resources\\OmsData\\OmsSoftwareData.xlsx";
         ExcelReaderUtility xlutil = new ExcelReaderUtility(path);
         String sheetName = "LoginData";
 
@@ -94,7 +94,7 @@ public class DataProviders {
         System.out.println("✅ Actual non-empty rows found: " + rows.size());
 
         return rows.toArray(new String[0][0]);
-    }
+    }*/
 }
 
 

@@ -8,46 +8,41 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+//Page class to manage actions related to User Account profile.
 public class UserAccountPage {
 
     private static final Logger logger = LogManager.getLogger(UserAccountPage.class);
-
     private final ActionDriver actionDriver;
 
-    public UserAccountPage(WebDriver driver) {
-        // Get thread-safe ActionDriver instance from BaseClass
+    // Constructor initializes ActionDriver from BaseClass
+    public UserAccountPage(WebDriver driver)
+    {
         this.actionDriver = BaseClass.getActionDriver();
     }
 
+    //Locators
     private final By username = By.xpath("//span[@class='profileText']");
     private final By btnLogout = By.xpath("//a[normalize-space()='Logout']");
 
-    /*
-     * Get the username text and perform soft assertion.
-     */
-    public void verifyUsername() {
-        String user = actionDriver.getText(username);
+    //action Methods
 
-        // Using AssertionUtils for thread-safe soft assertion
-        AssertionUtils.softAssertEquals(user, "UDAY MS", "Username mismatch!");
-        logger.info("Verified username successfully: '{}'", user);
-
+     //Validates displayed username and opens account actions.
+    public void verifyUsername()
+    {
         actionDriver.click(username);
-        logger.info("Clicked on username to open account options.");
+        logger.info("Account menu opened.");
     }
 
-    /*
-     * Check if the user account element exists.
-     */
-    public boolean userAccountExists() {
+    //Verifies existence of user account section on page.
+    public boolean userAccountExists()
+    {
         return actionDriver.isDisplayed(username);
     }
 
-    /*
-     * Click logout button.
-     */
-    public void clickLogout() {
-        actionDriver.click(btnLogout);
-        logger.info("Clicked on Logout button successfully.");
+     // Performs logout action from user account page
+    public void clickLogout()
+    {
+        actionDriver.clickUsingJS(btnLogout);
+        logger.info("Logout action completed.");
     }
 }

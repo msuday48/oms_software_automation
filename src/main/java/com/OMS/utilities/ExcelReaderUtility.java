@@ -10,24 +10,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
+// Utility class for reading and writing data to Microsoft Excel (XLSX) files using Apache POI.
 public class ExcelReaderUtility {
 
-    public FileInputStream fi;
-    public FileOutputStream fo;
-    public XSSFWorkbook workbook;
-    public XSSFSheet sheet;
-    public XSSFRow row;
-    public XSSFCell cell;
-    public CellStyle style;
-    String path;
+    private FileInputStream fi;
+    private FileOutputStream fo;
+    private XSSFWorkbook workbook;
+    private XSSFSheet sheet;
+    private XSSFRow row;
+    private XSSFCell cell;
+    private CellStyle style;
+    private final String path;
 
+    // Initializes the ExcelReaderUtility with the path to the Excel file.
     public ExcelReaderUtility(String path) {
         this.path = path;
     }
 
+    // Gets the total number of rows in a specified sheet.
     public int getRowCount(String sheetName) throws IOException {
         fi = new FileInputStream(path);
         workbook = new XSSFWorkbook(fi);
@@ -38,6 +39,7 @@ public class ExcelReaderUtility {
         return rowcount;
     }
 
+    // Gets the total number of cells (columns) in a specified row.
     public int getCellCount(String sheetName, int rownum) throws IOException {
         fi = new FileInputStream(path);
         workbook = new XSSFWorkbook(fi);
@@ -49,7 +51,7 @@ public class ExcelReaderUtility {
         return cellcount;
     }
 
-
+    // Retrieves value from a specified cell and formats it as a String.
     public String getCellData(String sheetName, int rownum, int colnum) throws IOException {
         fi = new FileInputStream(path);
         workbook = new XSSFWorkbook(fi);
@@ -60,7 +62,7 @@ public class ExcelReaderUtility {
         DataFormatter formatter = new DataFormatter();
         String data;
         try {
-            data = formatter.formatCellValue(cell); //Returns the formatted value of a cell as a String regardless of the cell type.
+            data = formatter.formatCellValue(cell);
         } catch (Exception e) {
             data = "";
         }
@@ -69,10 +71,10 @@ public class ExcelReaderUtility {
         return data;
     }
 
+    // Writes data into a specified cell, creating the file, sheet, or row if they do not exist.
     public void setCellData(String sheetName, int rownum, int colnum, String data) throws IOException {
         File xlfile = new File(path);
-        if (!xlfile.exists())    // If file not exists then create new file
-        {
+        if (!xlfile.exists()) {
             workbook = new XSSFWorkbook();
             fo = new FileOutputStream(path);
             workbook.write(fo);
@@ -81,11 +83,11 @@ public class ExcelReaderUtility {
         fi = new FileInputStream(path);
         workbook = new XSSFWorkbook(fi);
 
-        if (workbook.getSheetIndex(sheetName) == -1) // If sheet not exists then create new Sheet
+        if (workbook.getSheetIndex(sheetName) == -1)
             workbook.createSheet(sheetName);
         sheet = workbook.getSheet(sheetName);
 
-        if (sheet.getRow(rownum) == null)   // If row not exists then create new Row
+        if (sheet.getRow(rownum) == null)
             sheet.createRow(rownum);
         row = sheet.getRow(rownum);
 
@@ -98,6 +100,7 @@ public class ExcelReaderUtility {
         fo.close();
     }
 
+    // Fills a specified cell with a green foreground color.
     public void fillGreenColor(String sheetName, int rownum, int colnum) throws IOException {
         fi = new FileInputStream(path);
         workbook = new XSSFWorkbook(fi);
@@ -118,6 +121,7 @@ public class ExcelReaderUtility {
         fo.close();
     }
 
+    // Fills a specified cell with a red foreground color.
     public void fillRedColor(String sheetName, int rownum, int colnum) throws IOException {
         fi = new FileInputStream(path);
         workbook = new XSSFWorkbook(fi);
@@ -136,5 +140,4 @@ public class ExcelReaderUtility {
         fi.close();
         fo.close();
     }
-
 }

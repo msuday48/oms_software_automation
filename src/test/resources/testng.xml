@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 
-<suite name="OMS" parallel="methods" thread-count="1" verbose="2">
+<suite name="OMS_Suite" parallel="classes" thread-count="1" verbose="2">
 
     <listeners>
         <listener class-name="com.oms.listeners.TestListener" />
     </listeners>
 
-    <test name="OMS_SOFTWARE_AUTOMATION Regression">
+    <!-- Default parameter here ensures IDE runs (when you run a single test) still have a browser -->
+    <parameter name="browser" value="chrome" />
+
+    <test name="OMS_Regression_Chrome">
+        <!-- test-specific override (optional) -->
+        <parameter name="browser" value="chrome" />
 
         <classes>
             <class name="com.OMS.test.Melbourne.BannerMessages" />

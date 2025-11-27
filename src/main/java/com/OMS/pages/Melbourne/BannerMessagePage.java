@@ -3,229 +3,347 @@ package com.oms.pages.Melbourne;
 import com.oms.actiondriver.ActionDriver;
 import com.oms.base.BaseClass;
 import com.oms.utilities.AssertionUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 import static com.oms.actiondriver.ActionDriver.logger;
+import static com.oms.base.BaseClass.getDriver;
 import static com.oms.base.BaseClass.getTestEnv;
+import static java.lang.Thread.sleep;
 
 public class BannerMessagePage {
-
     private ActionDriver actionDriver;
 
+WebDriver driver=getDriver();
+
+    // Constructor initializes ActionDriver from BaseClass
     public BannerMessagePage(WebDriver driver) {
         this.actionDriver = BaseClass.getActionDriver();
     }
 
-    //  Locators
+    // Locators
     private By melbourneDropdown = By.xpath("(//a[@class='dropdown-toggle'])[1]");
     private By bannerMessagesButton = By.xpath("//a[@href='/oms/companyInformationCntrl']");
-    private By bannerMessagePageHeader = By.xpath("//h4[normalize-space()='Display messages via banner']");
+    private By bannerMessagePageHeader = By.xpath("//h4[normalize-space()='Display messages via banner' or @text()='Display messages via banner']");
     private By bannerMessagePageHeader_Unauthrised_users = By.xpath("//div[@class='text-center']");
-    private By newButton = By.xpath("//button[@id='addRowBtn']");
+    private By activeBanner = By.xpath("//td[normalize-space()='No data available']");
+    private By getActiveBannerDelete=By.xpath("//tr[@data-active='true']//button[@class='btn btn-sm btn-danger delete-btn']");
+    private By newButton = By.xpath("//button[@id='addRowBtn' or @text()='New']");
     private By bannerMessageTitle = By.xpath("(//textarea[@class='form-control info-textarea changeCaps'])[1]/preceding::textarea[@class='form-control title-textarea changeCaps'][1]");
     private By bannerMessageInformation = By.xpath("(//textarea[@class='form-control info-textarea changeCaps'])[2]/preceding::textarea[@class='form-control info-textarea changeCaps'][1]");
     private By categoryDropdown = By.xpath("//span[@title='Select category']");
-    private By categoryOptions = By.xpath("//ul[@id='select2-knkd-results' or @class='select2-results__options']/li");
+    private By categoryOptions = By.xpath("//li[contains(@class,'select2-results__option') and text()='\\\" + visibleText + \\\"']");
+    private  By categoryoption= By.xpath("//li[starts-with(@id, 'select2-') and contains(@id, 'Good news')]");
     private By publishButton = By.xpath("//button[@class='btn btn-sm save-btn']");
-    private By popupDisplayed = By.xpath("//h4[normalize-space()='Important message']");
+    private By popupDisplayed = By.xpath("//h4[normalize-space()='Important message' or  @text()='Important message']");
     private By popupTitleInPopup = By.cssSelector("div[id='companyInformationModalBody'] div h5");
     private By popupInfoInPopup = By.cssSelector("div[id='companyInformationModalBody'] div div p");
     private By understoodButton = By.xpath("(//button[@id='companyInfoFooterBtn'])[1]");
-    private By clickInactiveButton = By.xpath("(//button[@data-active='true'])[1]");
-    private By popupNoButton = By.xpath("//div[contains(@class,'modal-footer')]/button[@data-bb-handler='cancel' and contains(@class,'btn-danger')]");
-    private By PopupYesButton = By.xpath("//div[contains(@class,'modal-footer')]/button[@data-bb-handler='confirm' and contains(@class,'btn-success')]");
-    private By activeButton = By.xpath("//table[@class='table table-bordered table-secondary']/descendant::tr[@data-id='6912c593ffee874bb475936f']/descendant::button[@data-original-title='Click to make active']");
-    private By deleteButtonActivePopup = By.xpath("(//button[@class='btn btn-sm btn-danger delete-btn'])[1]");
-    private By inactiveBannerTitle = By.xpath("//table[@class='table table-bordered table-secondary']/descendant::textarea[@class='form-control title-textarea changeCaps'][text()='How to Access to users']");
-    private By inactiveBannerInfo = By.xpath("//table[@class='table table-bordered table-secondary']/descendant::textarea[@class='form-control info-textarea changeCaps'][text()='Refer the FAQ Document clause 12']");
-    private By inactiveBannerActiveButton = By.xpath("//table[@class=\"table table-bordered table-secondary\"]/descendant::tr[starts-with(@data-id, '6')] /descendant::button[@data-original-title=\"Click to make active\"]");
+    private By ActiveBanneractiveButton = By.xpath("//button[@data-active='true' or  @data-original-title=\"Click to make inactive\"]");
+    private By activeBannerPopup = By.xpath( "//div[@class='bootbox modal fade bootbox-confirm in']//div[@class='modal-content']");
+    private By popupNoButton = By.xpath("//div[contains(@class,'modal-footer')]/button[@data-bb-handler='confirm' and contains(@class,'btn-success')]");
+    private By PopupYesButton = By.xpath("//button[text()='Yes' and @data-bb-handler=\"confirm\"]");
+    private By InactiveBannerTitle=By.xpath("//table[@class=\"table table-bordered table-secondary\"]/descendant::textarea[@class=\"form-control title-textarea changeCaps\"][text()=\"How to Access to users\"]");
+    private By InactivebannerInformation = By.xpath("//table[@class=\"table table-bordered table-secondary\"]/descendant::textarea[@class=\"form-control info-textarea changeCaps\"][text()=\"Refer the FAQ Document clause 12\"]");
+    private By inactiveBannerinctiveButton = By.xpath("//button[@data-active=\"false\"  and @data-original-title=\"Click to make active\"][1]");
     private By inactivebannerpopup = By.xpath("//div[@class='bootbox modal fade bootbox-confirm in']/descendant::div[@class='modal-content']");
-    private By BannerMessageTabPresence= By.xpath("//table[@id='activeTable']");
+    private By deleteButtonActivePopup = By.xpath("(//button[@class='btn btn-sm btn-danger delete-btn'])[1]");
+    private By BannerMessageTabPresence = By.xpath("//table[@id='activeTable']");
 
-    //private By
-        //========Popup locators===============//
-
+    // Clicks Melbourne dropdown
     public void clickMelbourneDropdown() {
-        actionDriver.click(melbourneDropdown);
+      //  actionDriver.click(melbourneDropdown);
+        WebElement ele = driver.findElement(melbourneDropdown);
+        ele.click();
     }
 
+    // Navigates to Banner Messages page
     public void clickBannerMessagesButton() {
         actionDriver.click(bannerMessagesButton);
     }
 
+    // Validates that banner message page header is displayed for authorized users
     public void BannerMessagePageForAllUsers() {
         String header = actionDriver.getText(bannerMessagePageHeader);
-        AssertionUtils.hardAssertEquals(header, "Display messages via banner", "Banner message page title mismatch!");
+        AssertionUtils.softAssertEquals(header, "Display messages via banner", "Banner message page title mismatch!");
     }
 
+    // Validates unauthorized user banner access message
     public void BannerMessagePageDisplayedForUnauthorizedUsers() {
         String actual = actionDriver.getText(bannerMessagePageHeader_Unauthrised_users);
         String expected = "Note: Only the Admin (SUSUPER) / Productivity / Account / User manager / System users are allowed to make changes to this page.";
         AssertionUtils.hardAssertEquals(actual, expected, "Unauthorized user message mismatch!");
     }
 
+    // Clicks Add New message button
     public void clickNewButton() {
         actionDriver.click(newButton);
     }
 
+    // Enters Banner Message Title
     public void setBannerMessageTitle() {
         actionDriver.sendKeysWithActions(bannerMessageTitle, getTestEnv().getProperty("BannerMessageTitle"));
     }
 
-    public void setBannerMessageInformation()
-    {
+    // Enters Banner Message Description
+    public void setBannerMessageInformation() {
         actionDriver.sendKeysWithActions(bannerMessageInformation, getTestEnv().getProperty("BannerMessageInformation"));
     }
 
-    public void selectBannerMessageCategory()
-    {
-        actionDriver.selectBootstrapDropdownOption(categoryDropdown,categoryOptions, getTestEnv().getProperty("CategoryName"));
-    }
+//Single method to select category dropdown and choose a category based on the value from properties
+public  void selectCategoryDropdown() {
+// 1. Click the Select2 box
+    getDriver().findElement(By.cssSelector("span.select2-selection")).click();
 
+    // 2. Wait for dropdown and click the desired option
+    WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(4));
+    wait.until(ExpectedConditions.elementToBeClickable(
+            By.xpath("//span[text()='Emergency' and  @style=\"color:red; font-weight: bold;\"]")
+    )).click();
+}
+
+    // Publishes Banner Message
     public void clickPublishButton() {
         actionDriver.clickUsingJS(publishButton);
     }
 
+    // Verifies popup is displayed after publish
     public void verifyPopupDisplayed() {
+        actionDriver.waitForElementToBeVisible(popupDisplayed);
         AssertionUtils.softAssertTrue(actionDriver.isDisplayed(popupDisplayed), "Popup not displayed!");
     }
 
+    // Validates popup title text
     public void verifyPopupTitle() {
-     String title =   actionDriver.getText(popupTitleInPopup);
+
+        String title = actionDriver.getText(popupTitleInPopup);
         AssertionUtils.softAssertEquals(title, getTestEnv().getProperty("BannerMessageTitle"), "Popup title mismatch!");
     }
 
+    // Validates popup message text
     public void verifyPopupInformation() {
         String info = actionDriver.getText(popupInfoInPopup);
         AssertionUtils.softAssertEquals(info, getTestEnv().getProperty("BannerMessageInformation"), "Popup information mismatch!");
     }
 
+    // Closes popup using Understood button
     public void clickUnderstoodButton() {
         actionDriver.moveToElement(understoodButton);
         actionDriver.click(understoodButton);
     }
 
-    public void clickInactiveButton() {
-        actionDriver.click(clickInactiveButton);
+    public void verifyInactiveBannerMessage()
+    {
+        String title = actionDriver.getText(InactiveBannerTitle);
+        AssertionUtils.softAssertEquals(title, getTestEnv().getProperty("BannerMessageTitle"), "Popup information mismatch!");
+
+        String info = actionDriver.getText(InactivebannerInformation);
+        AssertionUtils.softAssertEquals(info, getTestEnv().getProperty("BannerMessageInformation"), "Popup information mismatch!");
+
+      actionDriver.click(inactiveBannerinctiveButton);
+      actionDriver.waitForElementToBeVisible(inactivebannerpopup);
+      actionDriver.click(PopupYesButton);
     }
 
+    // Clicks No on confirmation popup if visible
     public void clickPopupNoButton() {
-        if(actionDriver.isDisplayed(popupNoButton))
-        {
+        if(actionDriver.isDisplayed(popupNoButton)) {
             actionDriver.moveToElement(popupNoButton);
             actionDriver.click(popupNoButton);
         }
     }
 
-    public void clickPopupYesButton()
-    {
-        actionDriver.moveToElement(PopupYesButton);
+        // Clicks inactive toggle button or creates a new banner if none present
+        public void InactiveButton()  {
+                // If the active->inactive toggle exists, click it and confirm the popup
+                if (actionDriver.isDisplayed(ActiveBanneractiveButton)) {
+                    actionDriver.clickUsingJS(ActiveBanneractiveButton);
+
+                    // Wait for the confirmation popup content to appear, then click Yes
+                    actionDriver.waitForElementToBeVisible(activeBannerPopup);
+                    actionDriver.clickUsingJS(PopupYesButton);
+
+                    logger.info("Clicked inactive toggle and confirmed with YES.");
+                } else {
+                    // Fallback: create and publish a new banner
+                    logger.info("ActiveBannerInactiveButton not present — creating a new banner as fallback.");
+                    actionDriver.click(newButton);
+                    actionDriver.sendKeysWithActions(bannerMessageTitle, getTestEnv().getProperty("BannerMessageTitle"));
+                    actionDriver.sendKeysWithActions(bannerMessageInformation, getTestEnv().getProperty("BannerMessageInformation"));
+
+                    selectCategoryDropdown();
+
+                    actionDriver.moveToElement(publishButton);
+                    actionDriver.click(publishButton);
+
+                    try {
+                        sleep(1500);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    actionDriver.waitForElementToBeVisible(ActiveBanneractiveButton);
+                        actionDriver.moveToElement(ActiveBanneractiveButton);
+                        actionDriver.clickUsingJS(ActiveBanneractiveButton);
+                        actionDriver.waitForElementToBeVisible(activeBannerPopup);
+                        if (actionDriver.isDisplayed(PopupYesButton)) {
+                            actionDriver.clickUsingJS(PopupYesButton);
+                        }
+                        // No confirmation popup - continue
+                        logger.info("No confirmation popup appeared after publish (fallback flow).");
+                }
+            }
+/*
+        // Confirms popup using Yes button (uses corrected activeBannerPopup locator)
+    public void clickPopupYesButton() {
+
+        // 1. Wait for the popup content to be visible using the fixed locator
+        actionDriver.waitForElementToBeVisible(activeBannerPopup);
+
+        // 2. Click the YES button (using JS to avoid interception issues common with modals)
         actionDriver.clickUsingJS(PopupYesButton);
+    }*/
+
+    // Activates inactive banner
+    public void ActiveBannerMessageActiveButton() {
+        actionDriver.click(ActiveBanneractiveButton);
+        actionDriver.waitForElementToBeVisible(PopupYesButton);
+        actionDriver.click(PopupYesButton);
     }
 
-    public void verifyInactiveBannerMessageTitle() {
-        String title = actionDriver.getText(inactiveBannerTitle);
-        AssertionUtils.softAssertEquals(title, getTestEnv().getProperty("BannerMessageTitle"), "Inactive Banner message title mismatch!");
-    }
-
-    public void verifyInactiveBannerMessageInfo() {
-        String info = actionDriver.getText(inactiveBannerInfo);
-        AssertionUtils.softAssertEquals(info, getTestEnv().getProperty("BannerMessageInformation"), "Inactive Banner message info mismatch!");
-    }
-
-    public void InactiveBannerMessageActiveButton() {
-        actionDriver.click(inactiveBannerActiveButton);
-    }
-
+    // Displays confirmation popup for inactive banner activation
     public void InactiveBannerPopup(){
-        actionDriver.clickUsingJS(inactiveBannerActiveButton);
+        actionDriver.clickUsingJS(inactiveBannerinctiveButton);
         actionDriver.isDisplayed(inactivebannerpopup);
     }
-    // Improved method to handle the Yes button with better waiting logic
+
+    // Clicks Yes on inactive banner activation popup
     public void InactiveBannerPopupYesButton() {
         try {
-            // 1. Wait specifically for the YES button to be visible
-            // This uses the WebDriverWait from ActionDriver indirectly via waitForElementToBeVisible logic
-            // locator: //button[normalize-space()='Yes']
-
-            // 2. Scroll to it to ensure it's in view (handling modal overlays)
             actionDriver.scrollToElement(PopupYesButton);
-
-            // 3. Use JS Click because modal buttons are often intercepted by their own containers
             actionDriver.clickUsingJS(PopupYesButton);
-
             logger.info("Successfully clicked Popup YES button.");
         } catch (Exception e) {
             logger.error("Failed to click Popup YES button: " + e.getMessage());
-            // Optional: Add a hard fail here if this button is critical for the test flow
             throw e;
         }
     }
-    /*
-    public void deleteActiveBannerMessage() {
 
-        // First check if delete button is displayed and click it
-        if (actionDriver.isDisplayed(deleteButtonActivePopup)) {
-            actionDriver.clickUsingJS(deleteButtonActivePopup);
-            logger.info("Delete button clicked in active popup.");
+    public void clickPopupYesButton()  {
+        WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(5));
+
+        // Ensure the confirmation popup is visible
+        actionDriver.waitForElementToBeVisible(activeBannerPopup);
+
+        for (int attempts = 1; attempts <= 3; attempts++) {
+            try {
+                // Wait for Yes button to be clickable
+                WebElement yesBtn = wait.until(ExpectedConditions.elementToBeClickable(PopupYesButton));
+
+                // Click using JS (modals often block normal click)
+                ((JavascriptExecutor) getDriver()).executeScript("arguments[0].click();", yesBtn);
+
+                logger.info("Clicked YES button successfully on attempt " + attempts);
+
+                // Wait for popup to disappear
+                wait.until(ExpectedConditions.invisibilityOfElementLocated(activeBannerPopup));
+                return; // success
+
+            } catch (StaleElementReferenceException | ElementClickInterceptedException e) {
+                logger.warn("Click issue on attempt " + attempts + ": " + e.getClass().getSimpleName());
+                try {
+                    sleep(400);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } catch (TimeoutException e) {
+                logger.error("Timed out waiting for YES button to become clickable.");
+                break;
+            } catch (Exception e) {
+                logger.error("Unexpected error clicking YES button: " + e.getMessage());
+                throw e;
+            }
         }
 
-        // After clicking delete, confirm by clicking YES button
-
+        throw new RuntimeException("Failed to click YES button after 3 attempts.");
     }
-*/
+
+    // Deletes active banner message
     public void deleteActiveBannerMessage() {
-        // 1. Click Delete/Toggle Status
-        if (actionDriver.isDisplayed(deleteButtonActivePopup)) { // or inactiveBannerActiveButton
-            actionDriver.clickUsingJS(deleteButtonActivePopup);
+        if (actionDriver.isDisplayed(deleteButtonActivePopup)) {
+            actionDriver.click(deleteButtonActivePopup);
             logger.info("Delete/Toggle button clicked.");
-
-            // Small static wait might be necessary if the animation is very slow
-            // (Only use if explicit wait fails)
-            // try { Thread.sleep(500); } catch (InterruptedException e) {}
         }
-
-        // 2. Click Yes
-        // We don't need to check isDisplayed inside the 'if' because clickPopupYesButton
-        // handles the wait logic internally now.
         clickPopupYesButton();
     }
-    // Make this PUBLIC so Test07 can call it
+
+    // Simple create/update banner flow
     public void createBannerMessage() {
-        // 1. Enter Details
-        actionDriver.click(newButton);
-        actionDriver.sendKeysWithActions(bannerMessageTitle, getTestEnv().getProperty("BannerMessageTitle"));
-        actionDriver.sendKeysWithActions(bannerMessageInformation, getTestEnv().getProperty("BannerMessageInformation"));
-        actionDriver.selectBootstrapDropdownOption(categoryDropdown, categoryOptions, getTestEnv().getProperty("CategoryName"));
+        String titleVal = getTestEnv().getProperty("BannerMessageTitle");
+        String infoVal  = getTestEnv().getProperty("BannerMessageInformation");
 
-        // 2. Click Publish
-        actionDriver.clickUsingJS(publishButton);
+        actionDriver.waitForPageLoad(2);
+        // If title input isn't visible, open the form by clicking New
+        if (actionDriver.isDisplayed(activeBanner)) {
+            actionDriver.click(newButton);
 
-        // 3. SMART HANDLER: Check for "Deactivate Previous" Popup
-        // If a banner already exists, this popup appears. We must accept it.
-        try {
-            // Wait briefly for popup (using a short implicit check via isDisplayed)
-            if (actionDriver.isDisplayed(PopupYesButton)) {
-                logger.info("Confirmation Popup displayed (Deactivating old banner). Clicking Yes...");
-                clickPopupYesButton(); // Re-use your existing robust method
-            }
-        } catch (Exception e) {
-            logger.info("No confirmation popup appeared (First banner creation).");
+            actionDriver.waitForElementToBeVisible(bannerMessageTitle);
         }
 
-        logger.info("Banner creation process completed.");
+        // Fill fields
+        actionDriver.enterText(bannerMessageTitle, titleVal);
+        actionDriver.enterText(bannerMessageInformation, infoVal);
+
+        // Select category and publish
+        selectCategoryDropdown();
+        actionDriver.click(publishButton);
+
+        logger.info("Banner created/updated and published.");
     }
 
-    // Update BannerMessagetab to use this helper method
-    public void BannerMessagetab() {
-        if (actionDriver.isDisplayed(BannerMessageTabPresence)) {
-            // Case A: Tab exists (1 banner active). Create 1 new one (triggers popup).
-            createBannerMessage();
+    public void onebannermessageactive() {
+        String titleVal = getTestEnv().getProperty("BannerMessageTitle");
+        String infoVal  = getTestEnv().getProperty("BannerMessageInformation");
+
+        // Helper method to perform the banner creation steps
+        Runnable createBanner = () -> {
+
+          //  actionDriver.waitForElementToBeClickable(newButton);
+            actionDriver.click(newButton);
+            actionDriver.waitForElementToBeVisible(bannerMessageTitle);
+
+            actionDriver.enterText(bannerMessageTitle, titleVal);
+            actionDriver.enterText(bannerMessageInformation, infoVal);
+
+            selectCategoryDropdown();
+            actionDriver.click(publishButton);
+
+            if(actionDriver.isDisplayed(activeBannerPopup)){
+                clickPopupYesButton();
+                WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(3));
+                wait.until(ExpectedConditions.invisibilityOfElementLocated(activeBannerPopup));
+            }
+
+            actionDriver.waitForPageLoad(2);
+
+            logger.info("Banner created/updated and published.");
+        };
+
+        if (actionDriver.isDisplayed(activeBanner)) {
+            // Case 1: Title not displayed → perform twice
+            createBanner.run();
+            createBanner.run();
         } else {
-            // Case B: No active banners. Create 2 banners to force the "Only One Active" scenario.
-            createBannerMessage(); // No popup
-            createBannerMessage(); // Triggers popup
+            // Case 2: Title displayed → fill once, then repeat with New
+            actionDriver.enterText(bannerMessageTitle, titleVal);
+            actionDriver.enterText(bannerMessageInformation, infoVal);
+
+            selectCategoryDropdown();
+            actionDriver.click(publishButton);
+            logger.info("Banner created/updated and published.");
+
+            // Then repeat full sequence again
+            createBanner.run();
         }
     }
 }

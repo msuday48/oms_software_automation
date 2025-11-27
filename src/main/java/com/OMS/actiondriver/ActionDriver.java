@@ -126,7 +126,7 @@ public class ActionDriver
 
     // Simplified the method and remove redundant conditions
     // com.oms.actiondriver.ActionDriver.java
-
+/*
     // Simplified the method and remove redundant conditions
     public boolean isDisplayed(By by) {
         try {
@@ -154,7 +154,38 @@ public class ActionDriver
 
             return false;
         }
+    }*/
+
+    public boolean isDisplayed(By by) {
+        try {
+            waitForElementToBeVisible(by);
+            applyBorder(by, "green");
+            boolean isDisplayed = driver.findElement(by).isDisplayed();
+
+            if (isDisplayed) {
+                logger.info("Element is displayed " + getElementDescription(by));
+                ExtentManager.logStep("Element is displayed: " + getElementDescription(by));
+                ExtentManager.logStepWithScreenshot(BaseClass.getDriver(),
+                        "Element is displayed: ",
+                        "Element is displayed: " + getElementDescription(by));
+            } else {
+                // Element present but not visible
+                logger.warn("Element is found but not displayed: " + getElementDescription(by));
+                // Only log as info, not failure
+                ExtentManager.logStep("Element found but not displayed: " + getElementDescription(by));
+            }
+            return isDisplayed;
+
+        } catch (Exception e) {
+            applyBorder(by, "red");
+            logger.warn("Element is not present or visible: " + getElementDescription(by));
+            // Do NOT log as failure in Extent
+            ExtentManager.logStep("Element not present or visible: " + getElementDescription(by));
+            return false;
+        }
     }
+
+
 
     // Wait for the page to load
     public void waitForPageLoad(int timeOutInSec) {
@@ -181,7 +212,7 @@ public class ActionDriver
     }
 
     // Wait for Element to be clickable
-    private void waitForElementToBeClickable(By by) {
+    public void waitForElementToBeClickable(By by) {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(by));
         } catch (Exception e) {
@@ -190,7 +221,7 @@ public class ActionDriver
     }
 
     // Wait for Element to be Visible
-    private void waitForElementToBeVisible(By by) {
+    public void waitForElementToBeVisible(By by) {
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(by));
         } catch (Exception e) {
@@ -520,7 +551,6 @@ public class ActionDriver
     }
 
     // ===================== Advanced WebElement Actions =====================
-
     public void moveToElement(By by) {
         String elementDescription = getElementDescription(by);
         try {
@@ -609,4 +639,10 @@ public class ActionDriver
             applyBorder(by, "red");
             logger.error("Unable to upload file: " + e.getMessage());
         }
-    }}
+
+
+    }
+
+    public void waitForElementToDisappear(By by) {
+    }
+}
