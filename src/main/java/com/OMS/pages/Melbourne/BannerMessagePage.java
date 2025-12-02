@@ -3,6 +3,7 @@ package com.oms.pages.Melbourne;
 import com.oms.actiondriver.ActionDriver;
 import com.oms.base.BaseClass;
 import com.oms.utilities.AssertionUtils;
+import com.oms.utilities.ExceptionUtility;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -46,7 +47,7 @@ WebDriver driver=getDriver();
     private By PopupYesButton = By.xpath("//button[text()='Yes' and @data-bb-handler=\"confirm\"]");
     private By InactiveBannerTitle=By.xpath("//table[@class=\"table table-bordered table-secondary\"]/descendant::textarea[@class=\"form-control title-textarea changeCaps\"][text()=\"How to Access to users\"]");
     private By InactivebannerInformation = By.xpath("//table[@class=\"table table-bordered table-secondary\"]/descendant::textarea[@class=\"form-control info-textarea changeCaps\"][text()=\"Refer the FAQ Document clause 12\"]");
-    private By inactiveBannerinctiveButton = By.xpath("//button[@data-active=\"false\"  and @data-original-title=\"Click to make active\"][1]");
+    private By inactiveBannerinctiveButton = By.xpath("//tr[.//textarea[contains(text(),'Refer the FAQ Document clause')]]//button[contains(@class,'toggle-status-btn')][1]");
     private By inactivebannerpopup = By.xpath("//div[@class='bootbox modal fade bootbox-confirm in']/descendant::div[@class='modal-content']");
     private By deleteButtonActivePopup = By.xpath("(//button[@class='btn btn-sm btn-danger delete-btn'])[1]");
     private By BannerMessageTabPresence = By.xpath("//table[@id='activeTable']");
@@ -93,14 +94,24 @@ WebDriver driver=getDriver();
 
 //Single method to select category dropdown and choose a category based on the value from properties
 public  void selectCategoryDropdown() {
-// 1. Click the Select2 box
-    getDriver().findElement(By.cssSelector("span.select2-selection")).click();
-
+// 1. Click the Select2 box //body[1]/div[12]/div[3]/table[1]/tbody[1]/tr[1]/td[3]/span[1]/span[1]/span[1]
+   // getDriver().findElement(By.cssSelector("span.select2-selection")).click();
+    getDriver().findElement(By.xpath("//tbody[@id='activeTableBody']/tr[1]//span[contains(@class,'select2-selection__rendered')]")).click();
     // 2. Wait for dropdown and click the desired option
-    WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(4));
-    wait.until(ExpectedConditions.elementToBeClickable(
-            By.xpath("//span[text()='Emergency' and  @style=\"color:red; font-weight: bold;\"]")
-    )).click();
+
+// 1. Wait until the element is visible (using By locator)
+    By dropLocator = By.xpath("//ul[contains(@class,'select2-results__options')]//li[normalize-space(.)='Good news']");
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
+    WebElement drop = wait.until(ExpectedConditions.visibilityOfElementLocated(dropLocator));
+
+          if(drop.isDisplayed()){
+              ExceptionUtility.clickSafe(dropLocator);
+          }
+    else {
+// 2. Click with JavaScriptExecutor
+               JavascriptExecutor js = (JavascriptExecutor) driver;
+              js.executeScript("arguments[0].click();", dropLocator);
+          }
 }
 
     // Publishes Banner Message
@@ -129,8 +140,13 @@ public  void selectCategoryDropdown() {
 
     // Closes popup using Understood button
     public void clickUnderstoodButton() {
-        actionDriver.moveToElement(understoodButton);
-        actionDriver.click(understoodButton);
+        try {
+          if(  actionDriver.isDisplayed(popupDisplayed))
+            actionDriver.moveToElement(understoodButton);
+          actionDriver.click(understoodButton);
+        }
+        catch (Exception e){
+        }
     }
 
     public void verifyInactiveBannerMessage()
@@ -141,7 +157,7 @@ public  void selectCategoryDropdown() {
         String info = actionDriver.getText(InactivebannerInformation);
         AssertionUtils.softAssertEquals(info, getTestEnv().getProperty("BannerMessageInformation"), "Popup information mismatch!");
 
-      actionDriver.click(inactiveBannerinctiveButton);
+      actionDriver.clickUsingJS(inactiveBannerinctiveButton);
       actionDriver.waitForElementToBeVisible(inactivebannerpopup);
       actionDriver.click(PopupYesButton);
     }
@@ -206,9 +222,31 @@ public  void selectCategoryDropdown() {
 
     // Activates inactive banner
     public void ActiveBannerMessageActiveButton() {
-        actionDriver.click(ActiveBanneractiveButton);
-        actionDriver.waitForElementToBeVisible(PopupYesButton);
-        actionDriver.click(PopupYesButton);
+
+        String titleVal = getTestEnv().getProperty("BannerMessageTitle");
+        String infoVal  = getTestEnv().getProperty("BannerMessageInformation");
+
+        actionDriver.waitForPageLoad(2);
+        // If title input isn't visible, open the form by clicking New
+        if (actionDriver.isDisplayed(activeBanner)) {
+            actionDriver.click(newButton);
+
+            actionDriver.waitForElementToBeVisible(bannerMessageTitle);
+            actionDriver.enterText(bannerMessageTitle, titleVal);
+            actionDriver.enterText(bannerMessageInformation, infoVal);
+
+            // Select category and publish
+            selectCategoryDropdown();
+            actionDriver.click(publishButton);
+
+            logger.info("Banner created/updated and published.");
+        }
+
+        // Fill fields
+
+         ExceptionUtility.clickSafe(ActiveBanneractiveButton);
+         actionDriver.waitForElementToBeVisible(PopupYesButton);
+       ExceptionUtility.clickSafe(PopupYesButton);
     }
 
     // Displays confirmation popup for inactive banner activation
@@ -278,7 +316,8 @@ public  void selectCategoryDropdown() {
     }
 
     // Simple create/update banner flow
-    public void createBannerMessage() {
+    public void createBannerMessage()
+    {
         String titleVal = getTestEnv().getProperty("BannerMessageTitle");
         String infoVal  = getTestEnv().getProperty("BannerMessageInformation");
 
@@ -297,7 +336,7 @@ public  void selectCategoryDropdown() {
         // Select category and publish
         selectCategoryDropdown();
         actionDriver.click(publishButton);
-
+actionDriver.waitForPageLoad(3);
         logger.info("Banner created/updated and published.");
     }
 

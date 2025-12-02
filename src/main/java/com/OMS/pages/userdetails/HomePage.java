@@ -7,14 +7,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import static com.oms.base.BaseClass.getDriver;
 
@@ -30,58 +26,26 @@ public class HomePage {
     }
 
     // Locators
-    private By Revisedpolicy            = By.xpath("//h4[normalize-space()='A new / revised policy has been implemented.']");
-    private By Revisedpolicyclose         = By.xpath("(//button[normalize-space()='Remind later'])[1]");
-    private By BannerMessagePopup       = By.xpath("//h4[normalize-space()='Important message']");
-    private By BannerMessageclose        = By.xpath("//button[@id='companyInfoFooterBtn' ] [text() ='Understood']");
-    private By TestReportAproval         = By.xpath("//h4[normalize-space()='Test report approval notification']");
-    private By TestReportApprovalclose   = By.xpath("//button[@id='testerApprovalModalClose']");
-    private By NewApproveReuest          =By.xpath("//h4[text()= \"New approval request received\"]");
-    private By NewApproveReuestclose     =By.xpath("//button[@onclick='closePendingApprovalModalAndSnooze()' and text()='Close']");
-    private By HoldReports               =By.xpath("//h4[normalize-space()='Hold reports']");
-    private By HoldreportsClose          =By.xpath("//button[@id='rohPopUpCloseBtn']");
-    private By IncompleteReports         =By.xpath("//h4[normalize-space()='Incomplete reports']");
-    private By IncompleteClose           =By.xpath("//button[@id='roiPopUpCloseBtn']");
-    private By chatbotframe              =By.xpath("///iframe[@frameborder=\"0\" and @title=\"chat widget\" and starts-with(@id,'skbmt')]");
-    private By chat                      =By.xpath("//div[@isroundwidget='true']//div//*[name()='svg']");
-    private  By chatbotcustomer          = By.xpath("//p[@class='tawk-toolbar-agent-name tawk-text-truncate' and text()=' Customer Support ']");
-    private By chatotclose               =By.xpath("//div[@isroundwidget='true']//div//*[name()='svg']");
+    public By TestReportAproval         = By.xpath("//button[@id='testerApprovalModalClose']");
+    public By TestReportApprovalclose   = By.xpath("//button[@id='testerApprovalModalClose']");
+    public static By Revisedpolicy            = By.xpath("//h4[normalize-space()='A new / revised policy has been implemented.']");
+    public  By Revisedpolicyclose         = By.xpath("(//button[normalize-space()='Remind later'])[1]");
+    public static By BannerMessagePopup       = By.xpath("//h4[normalize-space()='Important message']");
+    public By BannerMessageclose        = By.xpath("//button[@id='companyInfoFooterBtn' ] [text() ='Understood']");
+    public By NewApproveReuest          =By.xpath("//h4[text()= \"New approval request received\"]");
+    public By NewApproveReuestclose     =By.xpath("//button[@onclick='closePendingApprovalModalAndSnooze()' and text()='Close']");
+    public By HoldReports               =By.xpath("//h4[normalize-space()='Hold reports']");
+    public By HoldreportsClose          =By.xpath("//button[@id='rohPopUpCloseBtn']");
+    public By IncompleteReports         =By.xpath("//h4[normalize-space()='Incomplete reports']");
+    public By IncompleteClose           =By.xpath("//button[@id='roiPopUpCloseBtn']");
+    public By Timesheet                 = By.xpath("//h4[normalize-space()='No time sheet entry found yesterday.']");
+    public By Timesheetclose            = By.xpath("//div[@id='understoodInstructionModal']//button[1]");
+    public By chatbotframe              =By.xpath("//iframe[@frameborder=\"0\" and @title=\"chat widget\" and starts-with(@id,'skbmt')]");
+    public By chat                      =By.xpath("//div[@isroundwidget='true']//div//*[name()='svg']");
 
-     // @param shouldCloseBannerPopup If true, closes the banner popup; if false, leaves it open for verification
-/*
-    public void handlePopups(boolean shouldCloseBannerPopup) {
-        try {
-            // 1. Handle Banner Message Popup
-            if (actionDriver.isDisplayed(BannerMessageclose)) {
-                if (shouldCloseBannerPopup) {
-                    actionDriver.moveToElement(BannerMessageclose);
-                    actionDriver.clickUsingJS(BannerMessageclose);
-                    logger.info("Banner Message popup closed successfully.");
-                } else {
-                    logger.info("Banner Message popup left open intentionally for verification.");
-                }
-            } else {
-                logger.info("Banner Message popup not displayed.");
-            }
-
-            // 2. Handle Revised Policy Popup (only if banner was closed or not present)
-            if (shouldCloseBannerPopup && actionDriver.isDisplayed(Revisedpolicy)) {
-                actionDriver.moveToElement(Revisedpolicy);
-                actionDriver.clickUsingJS(Revisedpolicy);
-                logger.info("Revised Policy popup closed successfully.");
-            } else if (shouldCloseBannerPopup) {
-                logger.info("Revised Policy popup not displayed.");
-            }
-        }
-        catch (Exception e) {
-            logger.warn("Unexpected error while handling popups: " + e.getMessage());
-            // Don't throw exception - allow test to continue
-        }
-    }
-*/// public By chatbotframe              =By.xpath("///iframe[@frameborder=\"0\" and @title=\"chat widget\" and starts-with(@id,'skbmt')]");
      public void handleChatbotIfPresent() {
          try {
-             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
              // Try switching to the chatbot frame
              wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(0));
@@ -106,19 +70,25 @@ public class HomePage {
              actionDriver.switchToDefaultContent();
          }
      }
+     public  void timesheet(){
+         if(actionDriver.isDisplayed(Timesheet)){
+             actionDriver.click(Timesheetclose);
+             actionDriver.waitForPageLoad(5);
+         }
+     }
 
     // Map of popup header → close button
-    private final Map<By, By> popups = Map.of(
+    public Map<By, By> popups = Map.of(
+            TestReportAproval, TestReportApprovalclose,
             Revisedpolicy, Revisedpolicyclose,
             BannerMessagePopup, BannerMessageclose,
-            TestReportAproval, TestReportApprovalclose,
             NewApproveReuest, NewApproveReuestclose,
             HoldReports, HoldreportsClose,
             IncompleteReports, IncompleteClose
     );
 
     // Overload: Close or leave ALL popups (no target specified)
-    public void handlePopups(boolean shouldClose) {
+    public void handlePopups(boolean shouldClose, By bannerMessagePopup) {
         Popups(shouldClose, null);
     }
 
@@ -147,7 +117,9 @@ public class HomePage {
                     }
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.warn("Unexpected error while handling popups: " + e.getMessage());
         }
     }
@@ -169,11 +141,18 @@ public class HomePage {
 
             // Final confirmation
             logger.info("Closed popup successfully: " + popupLocator);
-
-        } catch (TimeoutException e) {
+        }
+        catch (TimeoutException e) {
             logger.warn("Popup did not disappear after clicking: " + popupLocator);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error("Error closing popup " + popupLocator + ": " + e.getMessage());
         }
     }
+
+    //Homepage Locators
+    public By clientDropdown = By.xpath("//a[@class=\"dropdown-toggle\" and text()=\"Clients \"]");
+    public  By customers     = By.xpath("(//a[normalize-space()='Customers'])");
+
+
 }

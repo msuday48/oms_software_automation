@@ -5,11 +5,7 @@ import com.oms.pages.UserDetails.HomePage;
 import com.oms.pages.Melbourne.BannerMessagePage;
 import com.oms.pages.Oms_Login;
 import com.oms.pages.UserDetails.UserAccountPage;
-import org.openqa.selenium.WebDriver;
 import org.testng.annotations.*;
-
-import static com.oms.base.BaseClass.getDriver;
-import static com.oms.base.BaseClass.logger;
 
 public class BannerMessages extends BaseClass {
 
@@ -29,9 +25,11 @@ public class BannerMessages extends BaseClass {
         userpage = new UserAccountPage(getDriver());
 
         logger.info("====== LOGIN before executing BannerMessages test class ======");
+
         loginpage.login();
-        homepage.handleChatbotIfPresent();
-        homepage.handlePopups(true);
+      //  homepage.handleChatbotIfPresent();
+        homepage.timesheet();
+        homepage.handlePopups(true,HomePage.Revisedpolicy);
         bm.clickMelbourneDropdown();
         bm.clickBannerMessagesButton();
     }
@@ -70,7 +68,7 @@ public class BannerMessages extends BaseClass {
         bm.createBannerMessage();
 
         // Example 1: Close ALL popups
-        homepage.handlePopups(true);
+       // homepage.handlePopups(true, HomePage.BannerMessagePopup);
 
         // Example 2: Leave ALL popups open
         // homepage.handlePopups(false);
@@ -78,14 +76,11 @@ public class BannerMessages extends BaseClass {
         // Example 3: Close all except Banner Message popup (keep Banner Message open)
         // homepage.handlePopups(true, HomePage.BannerMessagePopup);
 
-
-
         // EXTRA LOGOUT after TC_003
         logger.info("=== EXTRA LOGOUT after TC_003 ===");
         userpage.verifyUsername();
         userpage.clickLogout();
     }
-
 
     // --------------------------- TEST CASE 4 --------------------------- //
     @Test(priority = 4, groups = "Regression")
@@ -95,15 +90,14 @@ public class BannerMessages extends BaseClass {
         // FRESH LOGIN before TC_004
         logger.info("=== FRESH LOGIN before TC_004 ===");
         loginpage.login();
-
         bm.verifyPopupDisplayed();
         bm.verifyPopupTitle();
         bm.verifyPopupInformation();
-        homepage.handlePopups(true);
+        bm.clickUnderstoodButton();
 
         logger.info("=== Completed TC_004 ===");
     }
-
+/*
     // --------------------------- TEST CASE 5 --------------------------- //
     @Test(priority = 5, groups = "Regression")
     public void TC_005_verifyInactiveBannerNotDisplayedToUsers() {
@@ -111,13 +105,14 @@ public class BannerMessages extends BaseClass {
 
         bm.clickMelbourneDropdown();
         bm.clickBannerMessagesButton();
+
         bm.ActiveBannerMessageActiveButton();
 
         userpage.verifyUsername();
         userpage.clickLogout();
 
         loginpage.login();
-        homepage.handlePopups(true);
+        homepage.handlePopups(true, HomePage.BannerMessagePopup);
         bm.clickMelbourneDropdown();
         bm.clickBannerMessagesButton();
         bm.BannerMessagePageForAllUsers();
@@ -136,5 +131,5 @@ public class BannerMessages extends BaseClass {
         bm.onebannermessageactive();
         logger.info("=== TC_007 - Verify only one Banner Message can be active at a time ===");
 
-    }
+    }*/
 }

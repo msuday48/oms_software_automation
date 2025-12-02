@@ -3,6 +3,7 @@ package com.oms.pages.UserDetails;
 import com.oms.actiondriver.ActionDriver;
 import com.oms.base.BaseClass;
 import com.oms.utilities.AssertionUtils;
+import com.oms.utilities.ExceptionUtility;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -29,7 +30,7 @@ public class UserAccountPage {
      //Validates displayed username and opens account actions.
     public void verifyUsername()
     {
-        actionDriver.click(username);
+        ExceptionUtility.clickSafe(username);
         logger.info("Account menu opened.");
     }
 

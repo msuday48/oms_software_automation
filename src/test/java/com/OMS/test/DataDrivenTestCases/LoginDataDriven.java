@@ -35,7 +35,7 @@ public class LoginDataDriven extends BaseClass {
             boolean homeDisplayed = loginpage.HomepageisDisplayed();
 
             if (homeDisplayed) {
-                homepage.handlePopups(true);
+                homepage.handlePopups(true,null);
             }
 
             boolean accountExists = userpage.userAccountExists();
